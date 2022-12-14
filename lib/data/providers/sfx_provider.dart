@@ -8,7 +8,7 @@ class SfxProvider {
   AudioPool? hitSfx;
   AudioPool? wingSfx;
 
-  double volume = 1.0;
+  double volume = 0.4;
 
   SfxProvider() {
     loadAssets();

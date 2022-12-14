@@ -1,5 +1,4 @@
 import 'package:flame/components.dart';
-import 'package:flame/flame.dart';
 import 'package:flame/image_composition.dart';
 import 'package:flappy_bird/utills/extensions.dart';
 
@@ -10,10 +9,7 @@ class Background extends Component with HasGameRef {
 
   @override
   Future<void>? onLoad() async {
-    final background = await Flame.images.load(
-      AssetImages.backgroundDay.fileName,
-    );
-    backgroundSprite = Sprite(background);
+    backgroundSprite = await Sprite.load(AssetImages.backgroundDay.fileName);
   }
 
   @override
