@@ -1,28 +1,39 @@
 import 'dart:async' as asc;
 
+import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
+import 'package:flappy_bird/components/pipes.dart';
 import 'package:flappy_bird/data/providers/sfx_provider.dart';
 import 'package:flappy_bird/utills/extensions.dart';
-import 'package:flutter/painting.dart';
+import 'package:flutter/material.dart';
 
 import '../data/providers/main_game_provider.dart';
 import '../main.dart';
 import '../r.dart';
 
-class Hero extends PositionComponent with HasGameRef {
+class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
   final mainGameProvider = getIt.get<MainGameProvider>();
   final sfxProvider = getIt.get<SfxProvider>();
 
   double currentAngle = 0;
-  double angleAcceleration = 0.08;
+  double angleAcceleration = 0;
   double gravityAcceleration = 0;
-  double gravity = 1;
+  double gravity = 0;
   SpriteAnimationComponent? player;
   Vector2 spriteSize = Vector2(
-    32 * 1.4,
-    24 * 1.4,
+    44.8,
+    33.6,
   );
   asc.Timer? debouncer;
+
+  @override
+  void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
+    print(other);
+    if (other is Pipe) {
+      gameOver();
+    }
+    super.onCollision(intersectionPoints, other);
+  }
 
   @override
   Future<void>? onLoad() async {
@@ -50,9 +61,9 @@ class Hero extends PositionComponent with HasGameRef {
     angle = 0;
     currentAngle = 0;
     position = Vector2(gameRef.size.x / 4, gameRef.size.y / 2);
-    angleAcceleration = 0.05;
+    angleAcceleration = 0;
     gravityAcceleration = 0;
-    gravity = 1;
+    gravity = 0;
   }
 
   void flap() {
@@ -73,25 +84,32 @@ class Hero extends PositionComponent with HasGameRef {
   @override
   void update(double dt) {
     if (mainGameProvider.startGame) {
-      gravityAcceleration -= 0.04;
-      gravity -= gravityAcceleration;
-      currentAngle += angleAcceleration;
-      if (currentAngle > 1.5) currentAngle = 1.5;
-      if (gravity > 24) gravity = 24;
+      final deltaTime = dt * 60;
 
-      y += gravity;
+      gravityAcceleration -= 0.04 * deltaTime;
+      gravity -= gravityAcceleration * deltaTime;
+      currentAngle += angleAcceleration * deltaTime;
+
+      y += gravity * deltaTime;
       angle = currentAngle;
 
-      if (y > gameRef.size.y - 160 - ((24 * 1.4) / 2)) {
-        sfxProvider.playHitSfx();
-        game.camera.shake(intensity: 2);
-        y = gameRef.size.y - 160 - ((24 * 1.4) / 2);
-        mainGameProvider.startGame = false;
-        mainGameProvider.gameOver = true;
+      if (currentAngle > 1.5) currentAngle = 1.5;
+      // if (gravity > 24) gravity = 24;
+
+      if (y > gameRef.size.y - 160 - (spriteSize.y / 2)) {
+        gameOver();
       }
     }
 
     if (!mainGameProvider.gameOver) player?.update(dt);
+  }
+
+  void gameOver() {
+    sfxProvider.playHitSfx();
+    game.camera.shake(intensity: 2);
+    y = gameRef.size.y - 160 - (spriteSize.y / 2);
+    mainGameProvider.startGame = false;
+    mainGameProvider.gameOver = true;
   }
 
   @override
