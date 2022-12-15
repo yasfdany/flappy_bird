@@ -2,7 +2,7 @@ import 'dart:async' as asc;
 
 import 'package:flame/collisions.dart';
 import 'package:flame/components.dart';
-import 'package:flappy_bird/components/pipes.dart';
+import 'package:flappy_bird/components/point_area.dart';
 import 'package:flappy_bird/data/providers/sfx_provider.dart';
 import 'package:flappy_bird/utills/extensions.dart';
 import 'package:flutter/material.dart';
@@ -10,6 +10,7 @@ import 'package:flutter/material.dart';
 import '../data/providers/main_game_provider.dart';
 import '../main.dart';
 import '../r.dart';
+import 'pipe.dart';
 
 class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
   final mainGameProvider = getIt.get<MainGameProvider>();
@@ -28,10 +29,10 @@ class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
 
   @override
   void onCollision(Set<Vector2> intersectionPoints, PositionComponent other) {
-    print(other);
     if (other is Pipe) {
       gameOver();
     }
+    if (other is PointArea) {}
     super.onCollision(intersectionPoints, other);
   }
 
@@ -39,7 +40,7 @@ class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
   Future<void>? onLoad() async {
     anchor = Anchor.center;
     size = spriteSize;
-    position = Vector2(gameRef.size.x / 4, gameRef.size.y / 2);
+    position = Vector2(gameRef.size.x / 4, gameRef.size.y / 2 - 80);
 
     final sprites = [
       Sprite.load(AssetImages.yellowbirdUpflap.fileName),
@@ -53,14 +54,18 @@ class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
     );
     player = SpriteAnimationComponent(
       animation: animation,
+      anchor: Anchor.center,
       size: spriteSize,
     );
+    add(RectangleHitbox(
+      size: spriteSize * 0.8,
+    ));
   }
 
   void resetState() {
     angle = 0;
     currentAngle = 0;
-    position = Vector2(gameRef.size.x / 4, gameRef.size.y / 2);
+    position = Vector2(gameRef.size.x / 4, gameRef.size.y / 2 - 80);
     angleAcceleration = 0;
     gravityAcceleration = 0;
     gravity = 0;
@@ -94,9 +99,9 @@ class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
       angle = currentAngle;
 
       if (currentAngle > 1.5) currentAngle = 1.5;
-      // if (gravity > 24) gravity = 24;
 
       if (y > gameRef.size.y - 160 - (spriteSize.y / 2)) {
+        y = gameRef.size.y - 160 - (spriteSize.y / 2);
         gameOver();
       }
     }
@@ -105,10 +110,9 @@ class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
   }
 
   void gameOver() {
+    if (mainGameProvider.gameOver) return;
     sfxProvider.playHitSfx();
     game.camera.shake(intensity: 2);
-    y = gameRef.size.y - 160 - (spriteSize.y / 2);
-    mainGameProvider.startGame = false;
     mainGameProvider.gameOver = true;
   }
 

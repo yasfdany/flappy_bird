@@ -6,6 +6,7 @@ import '../../r.dart';
 
 class SfxProvider {
   AudioPool? hitSfx;
+  AudioPool? pointSfx;
   AudioPool? wingSfx;
 
   double volume = 0.4;
@@ -20,6 +21,11 @@ class SfxProvider {
       minPlayers: 3,
       maxPlayers: 4,
     );
+    pointSfx = await FlameAudio.createPool(
+      AssetAudio.point.fileName,
+      minPlayers: 3,
+      maxPlayers: 4,
+    );
     wingSfx = await FlameAudio.createPool(
       AssetAudio.wing.fileName,
       minPlayers: 3,
@@ -29,6 +35,10 @@ class SfxProvider {
 
   void playHitSfx() {
     hitSfx?.start(volume: volume);
+  }
+
+  void playPointSfx() {
+    pointSfx?.start(volume: volume);
   }
 
   void playWingSfx() {

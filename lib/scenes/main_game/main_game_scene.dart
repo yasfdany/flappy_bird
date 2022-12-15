@@ -14,15 +14,13 @@ class MainGameScene extends FlameGame
     with HasGameRef, HasTappables, HasCollisionDetection {
   final mainGameProvider = getIt.get<MainGameProvider>();
   final hero = Hero();
-  final pipes = [
-    Pipe(),
-  ];
+  final pipes = [];
 
   @override
   void onTapDown(int pointerId, TapDownInfo info) {
     super.onTapDown(pointerId, info);
     if (mainGameProvider.gameOver) {
-      for (Pipe pipe in pipes) {
+      for (Pipes pipe in pipes) {
         pipe.resetState();
       }
       hero.resetState();
@@ -35,6 +33,15 @@ class MainGameScene extends FlameGame
 
   @override
   Future<void> onLoad() async {
+    mainGameProvider.pipeGap = gameRef.size.x / 1.8;
+    for (int i = 0; i < 3; i++) {
+      pipes.add(Pipes(
+        initialPosition: Vector2(
+          gameRef.size.x + (i * mainGameProvider.pipeGap),
+          0,
+        ),
+      ));
+    }
     if (kIsWeb) {
       if (gameRef.size.x > gameRef.size.y) {
         camera.viewport = FixedResolutionViewport(
@@ -48,7 +55,7 @@ class MainGameScene extends FlameGame
     }
 
     add(Background());
-    for (Pipe pipe in pipes) {
+    for (Pipes pipe in pipes) {
       add(pipe);
     }
     add(Road());
