@@ -1,19 +1,21 @@
+import 'dart:math';
+
 import 'package:flame/components.dart';
-import 'package:flame/flame.dart';
-import 'package:flappy_bird/r.dart';
-import 'package:flappy_bird/utills/extensions.dart';
+import 'package:flappy_bird/components/point_area.dart';
 
 import '../data/providers/main_game_provider.dart';
 import '../main.dart';
+import 'pipe.dart';
 
-class Pipe extends PositionComponent with HasGameRef {
+class Pipes extends PositionComponent with HasGameRef {
   final mainGameProvider = getIt.get<MainGameProvider>();
-  SpriteComponent? pipeUp;
-  SpriteComponent? pipeDown;
-  Vector2? initialPosition;
-  late double gap;
+  final random = Random();
+  final steps = [-100, -50, 0, 50, 100];
 
-  Pipe({this.initialPosition});
+  Vector2? initialPosition;
+  double offset = 0;
+
+  Pipes({this.initialPosition});
 
   void resetState() {
     position = initialPosition ?? Vector2(gameRef.size.x, 0);
@@ -21,31 +23,42 @@ class Pipe extends PositionComponent with HasGameRef {
 
   @override
   Future<void>? onLoad() async {
+    mainGameProvider.pipeSpace = gameRef.size.y / 4;
     position = initialPosition ?? Vector2(gameRef.size.x, 0);
-    gap = gameRef.size.y / 4;
-    size = Vector2(96, (gameRef.size.y / 2) - 80);
-    pipeUp = SpriteComponent.fromImage(
-      await Flame.images.load(AssetImages.pipeGreen.fileName),
-      position: Vector2(0, -(gap / 2)),
-      size: size,
-    );
-    pipeDown = SpriteComponent.fromImage(
-      await Flame.images.load(AssetImages.pipeGreen.fileName),
-      position: Vector2(0, gameRef.size.y - 160 + (gap / 2)),
-      anchor: Anchor.bottomLeft,
-      size: size,
+    size = Vector2(96, gameRef.size.y - 160);
+
+    final pipeUpPos = Vector2(0, (-mainGameProvider.pipeSpace / 2) + offset);
+    final pipeDownPos = Vector2(
+      0,
+      gameRef.size.y / 1.8 + offset + (mainGameProvider.pipeSpace / 2),
     );
 
-    pipeUp?.flipVerticallyAroundCenter();
-
-    add(pipeUp!);
-    add(pipeDown!);
+    add(Pipe(
+      type: PipeType.up,
+      position: pipeUpPos,
+    ));
+    add(
+      Pipe(
+        type: PipeType.down,
+        position: pipeDownPos,
+      ),
+    );
+    add(PointArea(
+      position: Vector2(
+        0,
+        (gameRef.size.y / 1.8) + (-mainGameProvider.pipeSpace / 2) + offset,
+      ),
+    ));
   }
 
   @override
   void update(double dt) {
     if (!mainGameProvider.startGame || mainGameProvider.gameOver) return;
+    y = -160 + offset;
     x -= 180 * dt;
-    if (x < -size.x) x = gameRef.size.x;
+    if (x < -size.x) {
+      x = gameRef.size.x + mainGameProvider.pipeGap;
+      offset = steps[random.nextInt(steps.length)].toDouble();
+    }
   }
 }
