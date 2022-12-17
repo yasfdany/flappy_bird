@@ -4,7 +4,7 @@ import 'package:flappy_bird/data/providers/sfx_provider.dart';
 
 import '../data/providers/main_game_provider.dart';
 import '../main.dart';
-import 'hero.dart';
+import 'bird.dart';
 
 class PointArea extends PositionComponent with CollisionCallbacks {
   final mainGameProvider = getIt.get<MainGameProvider>();
@@ -17,10 +17,12 @@ class PointArea extends PositionComponent with CollisionCallbacks {
   void onCollisionStart(
       Set<Vector2> intersectionPoints, PositionComponent other) {
     if (mainGameProvider.gameOver) return;
-    if (other is Hero) {
+    if (other is Bird) {
       if (!getPoint) {
         sfxProvider.playPointSfx();
         getPoint = true;
+        mainGameProvider.score++;
+        mainGameProvider.onGetScore?.call();
       }
     }
     super.onCollisionStart(intersectionPoints, other);
