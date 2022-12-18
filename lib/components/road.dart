@@ -9,10 +9,11 @@ import '../r.dart';
 
 class Road extends PositionComponent with HasGameRef {
   final mainGameProvider = getIt.get<MainGameProvider>();
+  final Vector2? initialPosition;
   Sprite? roadSprite;
   double speed = 180;
 
-  Road({super.position});
+  Road({this.initialPosition});
 
   @override
   void update(double dt) {
@@ -20,11 +21,12 @@ class Road extends PositionComponent with HasGameRef {
     if (mainGameProvider.gameOver) return;
 
     x -= speed * dt;
-    if (x < -gameRef.size.x + (speed * dt)) x = gameRef.size.x;
+    if (x <= -gameRef.size.x) x = gameRef.size.x - speed * dt;
   }
 
   @override
   Future<void>? onLoad() async {
+    initialPosition?.copyInto(position);
     anchor = Anchor.topLeft;
     x = position.x;
     size = Vector2(

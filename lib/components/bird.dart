@@ -12,7 +12,7 @@ import '../main.dart';
 import '../r.dart';
 import 'pipe.dart';
 
-class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
+class Bird extends PositionComponent with HasGameRef, CollisionCallbacks {
   final mainGameProvider = getIt.get<MainGameProvider>();
   final sfxProvider = getIt.get<SfxProvider>();
 
@@ -102,6 +102,10 @@ class Hero extends PositionComponent with HasGameRef, CollisionCallbacks {
 
       if (y > gameRef.size.y - 160 - (spriteSize.y / 2)) {
         y = gameRef.size.y - 160 - (spriteSize.y / 2);
+        gameOver();
+      }
+      if (y < (spriteSize.y / 2)) {
+        y = (spriteSize.y / 2);
         gameOver();
       }
     }
