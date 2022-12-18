@@ -21,7 +21,7 @@ class Pipe extends PositionComponent with HasGameRef {
 
   @override
   Future<void>? onLoad() async {
-    size = Vector2(96, gameRef.size.y / 1.8);
+    size = Vector2(gameRef.size.x / 5, gameRef.size.y / 1.8);
     switch (type) {
       case PipeType.up:
         pipe = SpriteComponent.fromImage(

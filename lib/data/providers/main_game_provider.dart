@@ -6,7 +6,7 @@ class MainGameProvider {
   bool gameOver = false;
   double pipeSpace = 0;
   double pipeGap = 0;
-  double score = 0;
+  int score = 0;
 
   void resetState() {
     score = 0;
