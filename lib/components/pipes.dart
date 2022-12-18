@@ -25,7 +25,7 @@ class Pipes extends PositionComponent with HasGameRef {
   Future<void>? onLoad() async {
     mainGameProvider.pipeSpace = gameRef.size.y / 4;
     position = initialPosition ?? Vector2(gameRef.size.x, 0);
-    size = Vector2(96, gameRef.size.y - 160);
+    size = Vector2(gameRef.size.x / 5, gameRef.size.y - 160);
 
     final pipeUpPos = Vector2(0, (-mainGameProvider.pipeSpace / 2) + offset);
     final pipeDownPos = Vector2(
@@ -57,7 +57,7 @@ class Pipes extends PositionComponent with HasGameRef {
     y = -160 + offset;
     x -= 180 * dt;
     if (x < -size.x) {
-      x = gameRef.size.x + mainGameProvider.pipeGap;
+      x = gameRef.size.x + mainGameProvider.pipeGap - (size.x / 2);
       offset = steps[random.nextInt(steps.length)].toDouble();
     }
   }
